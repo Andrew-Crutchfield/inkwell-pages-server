@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"sourceMap": true,
+		"target": "es2022",
+		"module": "commonjs",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"moduleResolution": "node",
+		"resolveJsonModule": true
+	},
+	"exclude": ["node_modules"]
+}
+
+// {
+// 	"compilerOptions": {
+// 		"outDir": "../../dist",
+// 		"rootDir": ".",
+// 		"types": ["node"]
+// 	},
+// 	"include": ["./**/*"]
+// }
