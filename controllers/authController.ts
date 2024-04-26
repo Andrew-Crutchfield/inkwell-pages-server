@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import config from '../config/config';
+import { jwtConfig } from '../config/config';
 import { query } from '../db/db';
 
 interface User {
@@ -13,13 +13,15 @@ interface User {
 }
 export const authenticateUser = async (email: string, password: string): Promise<{ success: boolean; user?: User }> => {
     try {
-        const [results] = await query<User[]>('SELECT id, email, password, role, created_at FROM Users WHERE email = ?', [email]);
+        const userResults = await query('SELECT id, email, password, role, created_at FROM Users WHERE email = ?', [email]);
 
-        if (!results || (Array.isArray(results) && results.length === 0)) {
+        console.log(userResults);
+
+        if (!userResults || userResults.rows.length === 0) {
             return { success: false, user: undefined };
         }
 
-        const user = Array.isArray(results) ? results[0] : results;
+        const user = userResults.rows[0];
 
         if (!user || !user.password) {
             return { success: false, user: undefined };
@@ -46,8 +48,8 @@ export const loginUser = async (req: Request, res: Response) => {
     if (authenticationResult.success) {
       const token: string = jwt.sign(
         { email, role: authenticationResult.user?.role },
-        config.jwt.secret,
-        { expiresIn: config.jwt.expiration }
+        jwtConfig.secret,
+        { expiresIn: jwtConfig.expiration }
       );
       res.json({ token });
     } else {
@@ -64,13 +66,13 @@ export const registerUser = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const queryResult: { affectedRows?: number } = await query(
+    const queryResult = await query(
       'INSERT INTO Users (email, password, role, created_at) VALUES (?, ?, ?, ?)',
       [email, hashedPassword, 'user', new Date()]
     );
 
-    if (queryResult.affectedRows && queryResult.affectedRows > 0) {
-      const token: string = jwt.sign({ email }, config.jwt.secret, { expiresIn: config.jwt.expiration });
+    if (queryResult.rowCount && queryResult.rowCount > 0) {
+      const token: string = jwt.sign({ email }, jwtConfig.secret, { expiresIn: jwtConfig.expiration });
       res.json({ token });
     } else {
       res.status(400).json({ message: 'Failed to register' });

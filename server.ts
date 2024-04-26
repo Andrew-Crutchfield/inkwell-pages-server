@@ -24,7 +24,7 @@ if (isDevelopment) {
 
 app.use('/api', bookRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/categories', categoryRoutes);
+app.use('/api', categoryRoutes);
 
 app.use('/api/protected-route', tokenCheck);
 

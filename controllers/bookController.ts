@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import { query } from '../db/db';
 import { Book } from '../types';
-import { QueryResult } from 'pg';
 
 const getAllBooks = async (req: Request, res: Response) => {
     try {
         const sql = 'SELECT * FROM books';
-        const books: Book[] = await query<Book[]>(sql);
+        const results = await query(sql);
+        console.log(results.rows);
+        const books : Book[] = results.rows;
         res.json({ books });
     } catch (error) {
         console.error('Error fetching books:', error);
@@ -18,8 +19,8 @@ const getBookById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const sql = 'SELECT * FROM books WHERE id = ?';
-        const books: Book[] = await query<Book[]>(sql, [id]);
-        const book = books[0];
+        const queryResult = await query(sql, [id]);
+        const book = queryResult.rows[0];
         if (book) {
             res.json(book);
         } else {
@@ -33,23 +34,22 @@ const getBookById = async (req: Request, res: Response) => {
 
 const createBook = async (req: Request, res: Response) => {
     try {
-        const { title, author, categoryid, price } = req.body;
+        const { title, author, categoryId, price } = req.body;
 
-        if (categoryid === undefined) {
+        if (categoryId === undefined) {
             return res.status(400).json({ message: 'Category ID is required' });
         }
 
-        const sql = 'INSERT INTO books (title, author, categoryid, price) VALUES (?, ?, ?, ?)';
-        const result = await query<QueryResult>(sql, [title, author, categoryid, price]);
+        const sql = 'INSERT INTO books (title, author, category_id, price) VALUES (?, ?, ?, ?)';
+        const result = await query(sql, [title, author, categoryId, price]);
 
         const newBook: Book = {
-            //id: result.insertId,
-            id: 1,
+            id: result.rows[0].id,
             title,
             author,
-            categoryid,
+            categoryId,
             price,
-            created_at: new Date()
+            createdAt: result.rows[0].created_at
         };
         res.json({ message: 'Book created successfully', book: newBook });
     } catch (error) {
@@ -65,9 +65,9 @@ const updateBook = async (req: Request, res: Response) => {
         const sql = 'UPDATE books SET title = ?, author = ?, categoryid = ?, price = ? WHERE id = ?';
         const safePrice = price !== undefined ? price : null;
 
-        const result = await query<QueryResult>(sql, [title, author, categoryid, safePrice, id]);
+        const result = await query(sql, [title, author, categoryid, safePrice, id]);
 
-        if (result != null && result.rowCount != null && result.rowCount > 0) {
+        if (result && result.rowCount && result.rowCount > 0) {
             res.json({ message: 'Book updated successfully' });
         } else {
             res.status(404).json({ message: 'Book not found' });
@@ -83,9 +83,9 @@ const deleteBook = async (req: Request, res: Response) => {
         const { id } = req.params;
         const sql = 'DELETE FROM books WHERE id = ?';
 
-        const result = await query<QueryResult>(sql, [id]);
+        const result = await query(sql, [id]);
 
-        if (result != null && result.rowCount != null && result.rowCount > 0) {
+        if (result && result.rowCount && result.rowCount > 0) {
             res.json({ message: 'Book deleted successfully' });
         } else {
             res.status(404).json({ message: 'Book not found' });

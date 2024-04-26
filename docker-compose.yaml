@@ -1,0 +1,33 @@
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: inkwell_postgres
+    user: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    container_name: inkwell_pgadmin
+    image: dpage/pgadmin4:latest
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ajcrutch117@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    ports:
+      - "8888:80"
+    depends_on:
+      - postgres
+    volumes:
+      - ./pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  pgadmin-data:
