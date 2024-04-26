@@ -1,27 +1,24 @@
-// import dotenv from 'dotenv';
-// dotenv.config();
+import dotenv from 'dotenv';
+dotenv.config();
 
-// const mysql = {
-//     user: process.env.DB_USER,
-//     password: process.env.DB_PASSWORD,
-//     host: process.env.DB_HOST,
-//     database: process.env.DB_DATABASE,
-// };
+const database = {
+    connectionString: process.env.DATABASE_URL
+};
 
-// if (!mysql.user || !mysql.password || !mysql.host || !mysql.database) {
-//     throw new Error('Crashing app - missing MySQL variables');
-// }
+if (!database.connectionString) {
+    throw new Error('DATABASE_URL environment variable not defined');
+}
 
-// const jwt = {
-//     secret: process.env.JWT_SECRET as string,
-//     expiration: process.env.JWT_EXPIRATION as string,
-// };
+const jwt = {
+    secret: process.env.JWT_SECRET as string,
+    expiration: process.env.JWT_EXPIRATION as string,
+};
 
-// if (!jwt.secret || !jwt.expiration) {
-//     throw new Error('Crashing app - missing JWT variables');
-// }
+if (!jwt.secret || !jwt.expiration) {
+    throw new Error('JWT_SECRET and JWT_EXPIRATION environment variables not set');
+}
 
-// export default {
-//     mysql,
-//     jwt,
-// };
+export default {
+    database,
+    jwt,
+};

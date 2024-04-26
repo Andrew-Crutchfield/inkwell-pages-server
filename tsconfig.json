@@ -12,12 +12,3 @@
 	},
 	"exclude": ["node_modules"]
 }
-
-// {
-// 	"compilerOptions": {
-// 		"outDir": "../../dist",
-// 		"rootDir": ".",
-// 		"types": ["node"]
-// 	},
-// 	"include": ["./**/*"]
-// }

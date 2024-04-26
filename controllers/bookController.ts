@@ -1,23 +1,12 @@
 import { Request, Response } from 'express';
-import fs from 'fs';
-import path from 'path';
+import { query } from '../db/db';
+import { Book } from '../types';
+import { QueryResult } from 'pg';
 
-interface Book {
-    id: number;
-    categoryid: number;
-    title: string;
-    author: string;
-    price: string;
-    created_at: Date;
-}
-
-const booksFilePath = path.join(process.env.JSON_PATH as string, 'books.json');
-
-export const getAllBooks = async (req: Request, res: Response) => {
+const getAllBooks = async (req: Request, res: Response) => {
     try {
-        console.log('Fetching all books...');
-        const booksData = fs.readFileSync(booksFilePath);
-        const books: Book[] = JSON.parse(booksData.toString());
+        const sql = 'SELECT * FROM books';
+        const books: Book[] = await query<Book[]>(sql);
         res.json({ books });
     } catch (error) {
         console.error('Error fetching books:', error);
@@ -25,95 +14,86 @@ export const getAllBooks = async (req: Request, res: Response) => {
     }
 };
 
-export const getBookById = async (req: Request, res: Response) => {
+const getBookById = async (req: Request, res: Response) => {
     try {
-        // Implement getBookById logic here
+        const { id } = req.params;
+        const sql = 'SELECT * FROM books WHERE id = ?';
+        const books: Book[] = await query<Book[]>(sql, [id]);
+        const book = books[0];
+        if (book) {
+            res.json(book);
+        } else {
+            res.status(404).json({ message: 'Book not found' });
+        }
     } catch (error) {
         console.error('Error fetching book details:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
-export const createBook = async (req: Request, res: Response) => {
+const createBook = async (req: Request, res: Response) => {
     try {
-        console.log('Creating a new book...');
-        const { categoryid, title, author, price }: Partial<Book> = req.body;
-        const booksData = fs.readFileSync(booksFilePath);
-        let books: Book[] = JSON.parse(booksData.toString());
+        const { title, author, categoryid, price } = req.body;
 
-        const id = books.length > 0 ? books[books.length - 1].id + 1 : 1;
-        const created_at = new Date();
+        if (categoryid === undefined) {
+            return res.status(400).json({ message: 'Category ID is required' });
+        }
 
-        const newBook: Book = { 
-            id, 
-            categoryid: categoryid as number,
-            title: title || '',
-            author: author || '',
-            price: (price || '0'),
-            created_at 
+        const sql = 'INSERT INTO books (title, author, categoryid, price) VALUES (?, ?, ?, ?)';
+        const result = await query<QueryResult>(sql, [title, author, categoryid, price]);
+
+        const newBook: Book = {
+            //id: result.insertId,
+            id: 1,
+            title,
+            author,
+            categoryid,
+            price,
+            created_at: new Date()
         };
-        
-        books.push(newBook);
-        fs.writeFileSync(booksFilePath, JSON.stringify(books, null, 2));
-
-        res.status(201).json({ message: 'Book created successfully', book: newBook });
+        res.json({ message: 'Book created successfully', book: newBook });
     } catch (error) {
         console.error('Error creating book:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
-export const updateBook = async (req: Request, res: Response) => {
+const updateBook = async (req: Request, res: Response) => {
     try {
-        console.log('Updating a book...');
-        const id: number = parseInt(req.params.id);
-        const { categoryid, title, author, price }: Partial<Book> = req.body;
-        
-        const booksData = fs.readFileSync(booksFilePath);
-        let books: Book[] = JSON.parse(booksData.toString());
+        const { id } = req.params;
+        const { title, author, categoryid, price } = req.body;
+        const sql = 'UPDATE books SET title = ?, author = ?, categoryid = ?, price = ? WHERE id = ?';
+        const safePrice = price !== undefined ? price : null;
 
-        const index = books.findIndex((book) => book.id === id);
+        const result = await query<QueryResult>(sql, [title, author, categoryid, safePrice, id]);
 
-        if (index === -1) {
-            return res.status(404).json({ message: 'Book not found' });
+        if (result != null && result.rowCount != null && result.rowCount > 0) {
+            res.json({ message: 'Book updated successfully' });
+        } else {
+            res.status(404).json({ message: 'Book not found' });
         }
-
-        books[index] = {
-            ...books[index],
-            categoryid: categoryid !== undefined ? categoryid : books[index].categoryid,
-            title: title !== undefined ? title : books[index].title,
-            author: author !== undefined ? author : books[index].author,
-            price: price !== undefined ? price : books[index].price,
-        };
-
-        fs.writeFileSync(booksFilePath, JSON.stringify(books, null, 2));
-
-        res.json({ message: 'Book updated successfully', book: books[index] });
     } catch (error) {
         console.error('Error updating book:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
-export const deleteBook = async (req: Request, res: Response) => {
+const deleteBook = async (req: Request, res: Response) => {
     try {
-        console.log('Deleting a book...');
-        const id: number = parseInt(req.params.id);
+        const { id } = req.params;
+        const sql = 'DELETE FROM books WHERE id = ?';
 
-        const booksData = fs.readFileSync(booksFilePath);
-        let books: Book[] = JSON.parse(booksData.toString());
+        const result = await query<QueryResult>(sql, [id]);
 
-        const filteredBooks = books.filter((book) => book.id !== id);
-
-        if (filteredBooks.length === books.length) {
-            return res.status(404).json({ message: 'Book not found' });
+        if (result != null && result.rowCount != null && result.rowCount > 0) {
+            res.json({ message: 'Book deleted successfully' });
+        } else {
+            res.status(404).json({ message: 'Book not found' });
         }
-
-        fs.writeFileSync(booksFilePath, JSON.stringify(filteredBooks, null, 2));
-
-        res.json({ message: 'Book deleted successfully' });
     } catch (error) {
         console.error('Error deleting book:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
+export { getAllBooks, getBookById, createBook, updateBook, deleteBook };

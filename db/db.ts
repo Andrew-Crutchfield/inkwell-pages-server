@@ -1,19 +1,24 @@
-// import mysql, { ResultSetHeader } from 'mysql2/promise';
-// import dotenv from 'dotenv';
+//import mysql, { ResultSetHeader } from 'mysql2/promise';
+import dotenv from 'dotenv';
+import pg, { QueryResult } from 'pg';
 
-// dotenv.config();
+dotenv.config();
 
-// const pool = mysql.createPool({
-//   host: process.env.DB_HOST || 'localhost',
-//   user: process.env.DB_USER || 'root',
-//   password: process.env.DB_PASSWORD || '',
-//   database: process.env.DB_DATABASE || 'your_default_database_name',
-//   waitForConnections: true,
-//   connectionLimit: 10,
-//   queueLimit: 0,
-// });
+const pgClient = new pg.Client({
+  connectionString: process.env.DATABASE_URL
+});
 
-// export const query = async <T = ResultSetHeader>(sql: string, params: any[] = []): Promise<T> => {
-//   const [rows] = await pool.execute(sql, params);
-//   return rows as T;
-// };
+console.log(`connecting to database`);
+pgClient.connect((error) => {
+  if(error) {
+    console.error(error, 'failed to connect to the database');
+    throw error;
+  }
+});
+console.log(`connected to database`);
+
+
+export const query = async <T = QueryResult>(sql: string, params: any[] = []): Promise<T> => {
+  const result = await pgClient.query(sql, params);
+  return result as T;
+};
