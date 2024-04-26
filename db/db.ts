@@ -26,6 +26,8 @@ type TypedQueryResult<T> = QueryResult & { rows: T[] };
 
 
 export const query = async (sql: string, params: any[] = []): Promise<QueryResult> => {
+  console.log(sql);
+  console.log(params);
   const result = await pgClient.query(sql, params);
   return result;  // This will return a QueryResult with rows typed as T[]
 };

@@ -13,7 +13,7 @@ interface User {
 }
 export const authenticateUser = async (email: string, password: string): Promise<{ success: boolean; user?: User }> => {
     try {
-        const userResults = await query('SELECT id, email, password, role, created_at FROM Users WHERE email = ?', [email]);
+        const userResults = await query('SELECT id, email, password, role, created_at FROM Users WHERE email = $1', [email]);
 
         console.log(userResults);
 
