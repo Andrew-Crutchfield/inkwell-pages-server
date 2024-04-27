@@ -11,7 +11,9 @@ const pgClient = new pg.Client({
   port: databaseConfig.port,
   user: databaseConfig.username,
   password: databaseConfig.password,
-  ssl: true
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 console.log(`connecting to database ${databaseConfig.databaseName} at ${databaseConfig.host}`);
