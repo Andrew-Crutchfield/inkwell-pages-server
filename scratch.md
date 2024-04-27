@@ -2,7 +2,7 @@
 ## Dev Environment Updates
 * [Install Docker](https://docs.docker.com/desktop/install/mac-install/)
 * Install Homebrew by copying and pasting this into a terminal: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-* `brew install postgresql@15`
+* `brew install postgresql@16`
 * `docker-compose up` to run Postgres locally
 * `psql -U pguser -d postgres -p 5432 -h localhost` should get you in (will prompt for password; see `docker-compose.yaml` for that)
 * Install the Heroku CLI: `brew tap heroku/brew && brew install heroku`
