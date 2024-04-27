@@ -8,6 +8,8 @@ import bookRoutes from './routes/bookRoutes';
 import authRoutes from './routes/authRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 
+console.log("inkwell-pages-server STARTING UP");
+
 dotenv.config();
 
 const isProduction: boolean = process.env.NODE_ENV === 'production';
@@ -22,10 +24,11 @@ if (isDevelopment) {
   app.use(express.static('public'));
 }
 
+console.log("CONFIGURING ROUTES");
+
 app.use('/api', bookRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', categoryRoutes);
-
 app.use('/api/protected-route', tokenCheck);
 
 app.get('/api/hello', (_, res: Response) => {
@@ -35,6 +38,9 @@ app.get('/api/hello', (_, res: Response) => {
 app.post('/auth/login', loginUser);
 app.post('/auth/register', registerUser);
 
+console.log("ROUTES CONFIGURED");
+
+
 if (isProduction) {
   app.use(express.static(path.join(__dirname, 'public')));
   app.get('*', (req: Request, res: Response) => {
@@ -43,6 +49,8 @@ if (isProduction) {
 }
 
 const PORT: string | number = process.env.PORT || 3000;
+
+console.log(`ABOUT TO START LISTENING ON ${PORT}`);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

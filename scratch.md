@@ -5,7 +5,7 @@
 * `brew install postgresql@15`
 * `docker-compose up` to run Postgres locally
 * `psql -U pguser -d postgres -p 5432 -h localhost` should get you in (will prompt for password; see `docker-compose.yaml` for that)
-* Install the Heroku CLI
+* Install the Heroku CLI: `brew tap heroku/brew && brew install heroku`
 
 
 ## Initialize Database
