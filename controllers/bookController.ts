@@ -7,7 +7,7 @@ const getAllBooks = async (req: Request, res: Response) => {
         const sql = 'SELECT * FROM books';
         const results = await query(sql);
         console.log(results.rows);
-        const books : Book[] = results.rows;
+        const books: Book[] = results.rows;
         res.json({ books });
     } catch (error) {
         console.error('Error fetching books:', error);
@@ -62,7 +62,7 @@ const updateBook = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const { title, author, categoryid, price } = req.body;
-        const sql = 'UPDATE books SET title = ?, author = ?, categoryid = ?, price = ? WHERE id = ?';
+        const sql = 'UPDATE books SET title = ?, author = ?, category_id = ?, price = ? WHERE id = ?';
         const safePrice = price !== undefined ? price : null;
 
         const result = await query(sql, [title, author, categoryid, safePrice, id]);
