@@ -6,7 +6,7 @@ const getAllBooks = async (req: Request, res: Response) => {
     try {
         const sql = 'SELECT * FROM books';
         const results = await query(sql);
-        console.log(results.rows);
+        console.log('Fetched all books:', results.rows);
         const books: Book[] = results.rows;
         res.json({ books });
     } catch (error) {
@@ -22,8 +22,10 @@ const getBookById = async (req: Request, res: Response) => {
         const queryResult = await query(sql, [id]);
         const book = queryResult.rows[0];
         if (book) {
+            console.log('Fetched book by ID:', book);
             res.json(book);
         } else {
+            console.log('Book not found with ID:', id);
             res.status(404).json({ message: 'Book not found' });
         }
     } catch (error) {
@@ -42,6 +44,7 @@ const createBook = async (req: Request, res: Response) => {
 
         const sql = 'INSERT INTO books (title, author, category_id, price) VALUES (?, ?, ?, ?)';
         const result = await query(sql, [title, author, categoryId, price]);
+        console.log('Created book:', result.rows[0]);
 
         const newBook: Book = {
             id: result.rows[0].id,
@@ -61,15 +64,18 @@ const createBook = async (req: Request, res: Response) => {
 const updateBook = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { title, author, categoryid, price } = req.body;
+        const { title, author, categoryId, price } = req.body;
+        console.log('Updating book with ID:', id);
         const sql = 'UPDATE books SET title = ?, author = ?, category_id = ?, price = ? WHERE id = ?';
         const safePrice = price !== undefined ? price : null;
 
-        const result = await query(sql, [title, author, categoryid, safePrice, id]);
+        const result = await query(sql, [title, author, categoryId, safePrice, id]);
+        console.log('Update result:', result);
 
         if (result && result.rowCount && result.rowCount > 0) {
             res.json({ message: 'Book updated successfully' });
         } else {
+            console.log('Book not found with ID:', id);
             res.status(404).json({ message: 'Book not found' });
         }
     } catch (error) {
@@ -81,13 +87,16 @@ const updateBook = async (req: Request, res: Response) => {
 const deleteBook = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
+        console.log('Deleting book with ID:', id);
         const sql = 'DELETE FROM books WHERE id = ?';
 
         const result = await query(sql, [id]);
+        console.log('Delete result:', result);
 
         if (result && result.rowCount && result.rowCount > 0) {
             res.json({ message: 'Book deleted successfully' });
         } else {
+            console.log('Book not found with ID:', id);
             res.status(404).json({ message: 'Book not found' });
         }
     } catch (error) {
