@@ -76,7 +76,7 @@ const updateBook = async (req: Request, res: Response) => {
         console.log("updateBook");
         console.log(req.params);
         console.log(req.body);
-        const { id } = req.params;
+        const id = parseInt(req.params.id);
         const { title, author, categoryId, price } = req.body;
         console.log('Updating book with ID:', id);
         const sql = 'UPDATE books SET title = ?, author = ?, category_id = ?, price = ? WHERE id = ?';
