@@ -63,6 +63,9 @@ const createBook = async (req: Request, res: Response) => {
 
 const updateBook = async (req: Request, res: Response) => {
     try {
+        console.log("updateBook");
+        console.log(req.params);
+        console.log(req.body);
         const { id } = req.params;
         const { title, author, categoryId, price } = req.body;
         console.log('Updating book with ID:', id);
