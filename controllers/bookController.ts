@@ -1,13 +1,20 @@
 import { Request, Response } from 'express';
 import { query } from '../db/db';
-import { Book } from '../types';
+import { Book } from '../types/types';
 
 const getAllBooks = async (req: Request, res: Response) => {
     try {
         const sql = 'SELECT * FROM books';
         const results = await query(sql);
         console.log('Fetched all books:', results.rows);
-        const books: Book[] = results.rows;
+        const books: Book[] = results.rows.map((row: any) => ({
+            id: row.id,
+            categoryId: row.category_id,
+            title: row.title,
+            author: row.author,
+            price: row.price,
+            createdAt: row.created_at
+        }));
         res.json({ books });
     } catch (error) {
         console.error('Error fetching books:', error);

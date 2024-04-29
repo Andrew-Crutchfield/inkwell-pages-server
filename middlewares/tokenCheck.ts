@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { Secret } from 'jsonwebtoken';
-import { Payload } from '../types/index';
+import { Payload } from '../types/types';
 
 const tokenCheck = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'];

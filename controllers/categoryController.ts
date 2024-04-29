@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { query } from '../db/db';
-import { Category } from '../types';
+import { Category } from '../types/types';
 
 export const getAllCategories = async (req: Request, res: Response) => {
   try {
