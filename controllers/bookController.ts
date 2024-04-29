@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { query } from '../db/db';
 import { Book } from '../types/types';
+import debug from 'debug';
+
+debug.enable('pg:sql');
 
 const getAllBooks = async (req: Request, res: Response) => {
     try {
