@@ -79,7 +79,7 @@ const updateBook = async (req: Request, res: Response) => {
         const id = parseInt(req.params.id);
         const { title, author, categoryId, price } = req.body;
         console.log('Updating book with ID:', id);
-        const sql = 'UPDATE books SET title = ?, author = ?, category_id = ?, price = ? WHERE id = ?';
+        const sql = 'UPDATE books SET title = $1, author = $2, category_id = $3, price = $4 WHERE id = $5';
         const safePrice = price !== undefined ? price : null;
 
         const result = await query(sql, [title, author, categoryId, safePrice, id]);
